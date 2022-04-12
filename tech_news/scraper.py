@@ -1,21 +1,76 @@
+import requests
+import time
+from parsel import Selector
+
+
 # Requisito 1
 def fetch(url):
-    """Seu código deve vir aqui"""
+    try:
+        response = requests.get(url, timeout=3)
+        time.sleep(1)
+        if response.status_code == 200:
+            return response.text
+        return None
+    except requests.exceptions.ReadTimeout:
+        return None
 
 
 # Requisito 2
 def scrape_novidades(html_content):
-    """Seu código deve vir aqui"""
+    selector = Selector(html_content)
+    info = selector.css(
+        "h3.tec--card__title a::attr(href)"
+    ).getall()
+    return info
 
 
 # Requisito 3
 def scrape_next_page_link(html_content):
-    """Seu código deve vir aqui"""
+    selector = Selector(html_content)
+    link = selector.css(
+        ".tec--list.tec--list--lg > a::attr(href)"
+    ).get()
+    return link
 
 
 # Requisito 4
 def scrape_noticia(html_content):
-    """Seu código deve vir aqui"""
+    selector = Selector(html_content)
+    link = selector.css("head link[rel=canonical]::attr(href)").get()
+    title = selector.css("#js-article-title::text").get()
+    time_stamp = selector.css("#js-article-date::attr(datetime)").get()
+    writer = selector.css(".z--font-bold *::text").get().strip()
+    shares_count = selector.css("div.tec--toolbar__item::text").get()
+    if shares_count:
+        shares_count = shares_count.strip()
+        shares_count = int(shares_count[0])
+    else:
+        shares_count = 0
+    comments = selector.css("#js-comments-btn::attr(data-count)").get().strip()
+    summary = selector.css(
+        "div.tec--article__body > p:nth-child(1) *::text"
+    ).getall()
+    summary = "".join(summary)
+    new_sources = []
+    sources = selector.css("div.z--mb-16 a::text").getall()
+    for source in sources:
+        new_sources.append(source.strip())
+    categories = selector.css("div#js-categories > a::text").getall()
+    new_categories = []
+    for category in categories:
+        new_categories.append(category.strip())
+    new_info = {
+        "url": link,
+        "title": title,
+        "timestamp": time_stamp,
+        "writer": writer,
+        "shares_count": shares_count,
+        "comments_count": int(comments),
+        "summary": summary,
+        "sources": new_sources,
+        "categories": new_categories,
+    }
+    return new_info
 
 
 # Requisito 5
