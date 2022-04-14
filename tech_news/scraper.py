@@ -91,4 +91,5 @@ def get_tech_news(amount):
         news_data.append(scrape_noticia(data))
 
     create_news(news_data)
+    print(news_data)
     return news_data
