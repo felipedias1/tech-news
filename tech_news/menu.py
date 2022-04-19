@@ -1,4 +1,9 @@
 import sys
+from tech_news.scraper import get_tech_news
+from tech_news.analyzer.ratings import top_5_categories, top_5_news
+from tech_news.analyzer.search_engine import (
+    search_by_category, search_by_date, search_by_source, search_by_title
+)
 
 
 # Requisito 12
@@ -27,7 +32,24 @@ def analyzer_menu():
         5: "Digite quantas notícias serão buscadas:"
     }
 
-    if(option.isdigit() and -1 < int(option) < 6):
+    dict_functions = {
+        "0": get_tech_news,
+        "1": search_by_title,
+        "2": search_by_date,
+        "3": search_by_source,
+        "4": search_by_category,
+        "5": top_5_news(),
+        "6": top_5_categories(),
+    }
+
+    if(option.isdigit() and -1 < int(option) < 5):
         print(dict_option[int(option)])
+        answer = input()
+        print(dict_functions[option](answer))
+    elif(option.isdigit() and 4 < int(option) < 7):
+        print(dict_functions[option])
+    elif (option.isdigit() and int(option) == 7):
+        print("Encerrando script")
+        sys.stdin.close()
     else:
-        print("Opção Inválida", file=sys.stderr)
+        print("Opção inválida", file=sys.stderr)
